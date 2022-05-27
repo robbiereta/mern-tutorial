@@ -1,12 +1,12 @@
 const asyncHandler = require('express-async-handler')
 
 const ventaModel = require('../models/ventaModel')
-
+const User = require('../models/userModel')
 // @desc    Get Ventas
 // @route   GET /api/Ventas
 // @access  Private
 const getVentas = asyncHandler(async (req, res) => {
-  const ventas = await ventaModel.find()
+  const ventas = await ventaModel.find({ user: req.user.id })
 
   res.status(200).json(ventas)
 })
@@ -51,7 +51,19 @@ const updateVenta = asyncHandler(async (req, res) => {
     res.status(400)
     throw new Error('Venta not found')
   }
+  const user = await User.findById(req.user.id)
 
+  // Check for user
+  if (!user) {
+    res.status(401)
+    throw new Error('User not found')
+  }
+
+  // Make sure the logged in user matches the goal user
+  if (goal.user.toString() !== user.id) {
+    res.status(401)
+    throw new Error('User not authorized')
+  }
   const updatedVenta = await  ventaModel.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   })
@@ -69,7 +81,19 @@ const deleteVenta = asyncHandler(async (req, res) => {
     res.status(400)
     throw new Error('Venta not found')
   }
+  const user = await User.findById(req.user.id)
 
+  // Check for user
+  if (!user) {
+    res.status(401)
+    throw new Error('User not found')
+  }
+
+  // Make sure the logged in user matches the goal user
+  if (goal.user.toString() !== user.id) {
+    res.status(401)
+    throw new Error('User not authorized')
+  }
   await  ventaModel.deleteOne()
 
   res.status(200).json({ id: req.params.id })
