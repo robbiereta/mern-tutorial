@@ -6,7 +6,7 @@ const User = require('../models/userModel')
 // @route   GET /api/Ventas
 // @access  Private
 const getVentas = asyncHandler(async (req, res) => {
-  const ventas = await ventaModel.find({ user: req.user.id })
+  const ventas = await ventaModel.find()
 
   res.status(200).json(ventas)
 })
@@ -21,7 +21,7 @@ const getVenta = asyncHandler(async (req, res) => {
     res.status(400)
     throw new Error('Venta not found')
   }
-
+       
   res.status(200).json(venta)
 })
 
@@ -29,15 +29,14 @@ const getVenta = asyncHandler(async (req, res) => {
 // @route   POST /api/Ventas
 // @access  Private
 const setVenta = asyncHandler(async (req, res) => {
-  if (!req.body.text) {
-    res.status(400)
-    throw new Error('Please add a text field')
-  }
-
+  
   const venta = await  ventaModel.create({
-    text: req.body.text,
+    total: req.body.total,
+    movimientos: req.body.movimientos,
+    usuario: req.body.usuario,
+  empresa: req.body.empresa,
   })
-
+venta.save()
   res.status(200).json(venta)
 })
 
